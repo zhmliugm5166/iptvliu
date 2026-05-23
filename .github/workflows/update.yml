@@ -1,0 +1,26 @@
+name: 每日更新直播源
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # 每天北京时间凌晨2点
+  workflow_dispatch:       # 允许手动触发
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 安装Python依赖
+        run: pip install requests
+
+      - name: 运行更新脚本
+        run: python update.py
+
+      - name: 提交更新文件
+        run: |
+          git config user.email "bot@bot.com"
+          git config user.name "AutoBot"
+          git add playlist.m3u
+          git commit -m "自动更新 $(date '+%Y-%m-%d')" || echo "无变化"
+          git push
